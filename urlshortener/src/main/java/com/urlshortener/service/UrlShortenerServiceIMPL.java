@@ -46,7 +46,6 @@ public class UrlShortenerServiceIMPL implements UrlShortenerService{
     @Override
     public ResponseEntity<Optional<UrlEntity>> redirectUrl(String redirectUrl) {
         Optional<UrlEntity> originalUrl = urlRepository.findByGeneratedUrl(redirectUrl);
-        System.out.println(originalUrl.toString());
         if(originalUrl.isPresent()){
             RedirectView redirectView = new RedirectView();
             redirectView.setUrl(originalUrl.get().getInputUrl());
