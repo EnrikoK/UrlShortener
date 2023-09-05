@@ -1,5 +1,4 @@
 package com.urlshortener.service;
-
 import com.urlshortener.dto.UserInputDto;
 import com.urlshortener.entity.UrlEntity;
 import com.urlshortener.exceptions.RedirectNotFoundException;
@@ -8,10 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.view.RedirectView;
+import java.util.Date;
+import java.util.Optional;
 
-
-import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,21 +21,19 @@ public class UrlShortenerServiceIMPL implements UrlShortenerService{
 
     @Override
     public ResponseEntity<UrlEntity> generateShortUrl(UserInputDto url) {
-        String[] charset = {
-                "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S",
-                "T", "U", "V", "W", "X", "Y", "Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n",
-                "o","p","q","r","s","t","u","w","x","y","z","1","2","3","4","5","6","7","8","9","0"
-        };
 
-        String newUrl = "";
-        while(newUrl.equals("") || urlRepository.findByGeneratedUrl(newUrl).isPresent()) {
+        String charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789";
+
+        StringBuilder newUrl = new StringBuilder();
+        while(newUrl.toString().equals("") || urlRepository.findByGeneratedUrl(newUrl.toString()).isPresent()) {
+            newUrl = new StringBuilder();
             for (int i = 0; i < 7; i++) {
-                newUrl += charset[(int) (Math.random() * charset.length)];
+                newUrl.append(charset.charAt(((int) (Math.random() * charset.length()))));
             }
         }
         UrlEntity generatedUrl = new UrlEntity();
         generatedUrl.setInputUrl(url.getUserInput());
-        generatedUrl.setOutputUrl(newUrl);
+        generatedUrl.setOutputUrl(newUrl.toString());
         generatedUrl.setCreatedAt(new Date());
         urlRepository.save(generatedUrl);
         return ResponseEntity.ok(generatedUrl);
@@ -47,8 +43,6 @@ public class UrlShortenerServiceIMPL implements UrlShortenerService{
     public ResponseEntity<Optional<UrlEntity>> redirectUrl(String redirectUrl) {
         Optional<UrlEntity> originalUrl = urlRepository.findByGeneratedUrl(redirectUrl);
         if(originalUrl.isPresent()){
-            RedirectView redirectView = new RedirectView();
-            redirectView.setUrl(originalUrl.get().getInputUrl());
             return ResponseEntity.ok(originalUrl);
         }else {
             throw new RedirectNotFoundException("Url not found!");

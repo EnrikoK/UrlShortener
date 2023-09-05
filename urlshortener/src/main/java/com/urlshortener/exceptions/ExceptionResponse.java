@@ -1,5 +1,4 @@
 package com.urlshortener.exceptions;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
